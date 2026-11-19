@@ -84,11 +84,51 @@ a = rep(a, "<div class=\"col-b\">${it.map(ticketHTML)", "<div class=\"col-b\" da
 a = rep(a, ".col-b{padding:10px;display:flex;flex-direction:column;gap:9px}",
         ".col-b{padding:10px;display:flex;flex-direction:column;gap:9px}\n.ticket[data-order-id]{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}", expect=1)
 a = sub(a, r"/\* --- 3\. Drag & drop en kanban de servicios --- \*/.*?(?=/\* --- 5\. )", lambda m: (ROOT / 'patches/servicios.js').read_text(encoding='utf-8'), count=1, flags=re.S)
-# PIN de perfiles AMINK (reemplazan los de la plantilla; el PIN alternativo de Gerencia queda igual al principal)
-a = rep(a, "pin: 'g3r3nc14'", "pin: '3sdthmiu'", expect=1)
-a = rep(a, "pin: 'c0m3rc14l'", "pin: 'taavcdxv'", expect=1)
-a = rep(a, "pin: 'b0d3g4'", "pin: 'na4a55nk'", expect=1)
+# Perfiles AMINK: Gerencia + sedes Chapinero y Modelia, todos con el mismo PIN
+a = rep(a, "{ id: 'us_ger', nombre: 'Gerencia', perfil: 'gerencia', pin: 'g3r3nc14'", "{ id: 'us_ger', nombre: 'Gerencia', perfil: 'gerencia', pin: '3sdthmiu'", expect=1)
+a = rep(a, "{ id: 'us_com', nombre: 'Comercial', perfil: 'comercial', pin: 'c0m3rc14l'", "{ id: 'us_cha', nombre: 'Chapinero', perfil: 'sede', sede: 'chapinero', pin: '3sdthmiu'", expect=1)
+a = rep(a, "{ id: 'us_bod', nombre: 'Bodega', perfil: 'bodega', pin: 'b0d3g4'", "{ id: 'us_mod', nombre: 'Modelia', perfil: 'sede', sede: 'modelia', pin: '3sdthmiu'", expect=1)
 a = rep(a, "const GER_PIN_EXTRA = 'g3r3nc1a';", "const GER_PIN_EXTRA = '3sdthmiu';", expect=1)
+# --- sedes: almacenamiento separado por sede (store/<sede>/<sección>, localStorage por sede)
+a = rep(a, "/* ---- persistencia ---- */\nlet DBX = null", """/* ---- persistencia ---- */
+/* AMINK: cada sede guarda sus datos aparte; 'todas' = vista consolidada de Gerencia (solo lectura) */
+const SEDES = { chapinero: 'Chapinero', modelia: 'Modelia' };
+let SEDE = (() => { try { const s = localStorage.getItem('amk_sede'); return (SEDES[s] || s === 'todas') ? s : 'chapinero'; } catch (e) { return 'chapinero'; } })();
+const NS = () => 'store/' + SEDE + '/';
+let DBX = null""", expect=1)
+a = rep(a, "localStorage.getItem('yt_syn')", "localStorage.getItem('yt_syn_' + SEDE)", expect=1)
+a = rep(a, "localStorage.setItem('yt_syn', JSON.stringify(SYN))", "localStorage.setItem('yt_syn_' + SEDE, JSON.stringify(SYN))", expect=1)
+a = rep(a, "const LS = 'ef_gestion_v1';", "let LS = 'ef_gestion_v1_' + SEDE;", expect=1)
+a = rep(a, "'store/' + k", "NS() + k", expect=3)
+a = rep(a, "async function supaStart() {\n", "async function supaStart() {\n  if (SEDE === 'todas' && SUPA_ON && (await supaToken())) return amkConsolidar();\n", expect=1)
+a = rep(a, "supaReq('GET', '?path=like.store%2F*&select=path,data');\n    const kept", "supaReq('GET', '?path=like.' + encodeURIComponent(NS()) + '*&select=path,data');\n    const kept", expect=1)
+a = rep(a, "const k = r.path.slice(6);", "const k = r.path.slice(NS().length);", expect=1)
+a = rep(a, "SUPA_DB.doc('public/catalog').set(d)", "if (SEDES[SEDE]) SUPA_DB.doc('public/catalog_' + SEDE).set(d)", expect=1)
+a = rep(a, "for (const path of ['public/catalog', 'public/logo'])", "for (const path of ['public/catalog', 'public/catalog_chapinero', 'public/catalog_modelia', 'public/logo'])", expect=1)
+# --- acceso: 3 perfiles fijos, todos con PIN; Gerencia elige Consolidado o una sede
+a = rep(a, "const users = () => (S.config.users || []).filter(u => !u.inactivo);", "const users = () => AMK_USERS;", expect=1)
+a = rep(a, "try { await supaStart(); } catch (e) { }\n    pinTries = 0; drawProfiles();", "pinTries = 0; drawProfiles();", expect=1)
+a = rep(a, "${esc(PDESC[u.perfil] || '')}${u.perfil === 'gerencia' ? ' · pide PIN' : ''}", "${esc(u.desc || '')}", expect=1)
+a = rep(a, "    if (u.perfil !== 'gerencia') return enter(u);\n", "", expect=1)
+a = rep(a, "if (c !== String(u.pin || '') && c !== GER_PIN_EXTRA) {", "if (c !== AMK_PIN) {", expect=1)
+a = rep(a, "    enter(u);\n  }\n  function enter(us) {", """    if (u.perfil === 'gerencia') return drawSedes();
+    goSede(u, u.sede);
+  }
+  function drawSedes() {
+    v10Shell(`<div id="v11Box"><div style="font-weight:700;font-size:1.05rem;margin:2px 0 12px">👑 Gerencia · ¿qué quieres ver?</div>
+      <div class="opt-grid" style="grid-template-columns:1fr;gap:10px">${['todas', 'chapinero', 'modelia'].map(s => `<button class="opt" type="button" style="display:flex;align-items:center;gap:14px;padding:16px" onclick="ytV11.sede('${s}')"><span class="em" style="font-size:28px;margin:0">${s === 'todas' ? '📊' : '🏬'}</span><span><b style="font-size:1.05rem">${AMK_NOMBRE[s]}</b><span class="d" style="font-size:12.5px;display:block">${s === 'todas' ? 'Suma de ambas sedes: ventas, caja, inventario, reportes y estados financieros' : 'Operar la sede con permisos de Gerencia'}</span></span></button>`).join('')}</div>
+      <div id="v11Msg" class="tiny" style="margin-top:10px;min-height:1em"></div></div>`);
+  }
+  async function goSede(u, sede) {
+    v10Shell(`<div id="v11Box"><div class="alertbox g"><span class="em">☁️</span><div>Cargando ${esc(AMK_NOMBRE[sede] || sede)}…</div></div></div>`);
+    try { await amkUsar(sede); } catch (e) { console.warn('sede', e); }
+    enter(u);
+  }
+  function enter(us) {""", expect=1)
+a = rep(a, "window.ytV11 = { signin, verify, resend: () => sendCode(true), pick, pin, forget, profiles: drawProfiles };",
+        "window.ytV11 = { signin, verify, resend: () => sendCode(true), pick, pin, forget, profiles: drawProfiles, sede: s => goSede(AMK_USERS[0], s) };", expect=1)
+_end = a.rfind('</script>')
+a = a[:_end] + (ROOT / 'patches/sedes.js').read_text(encoding='utf-8') + a[_end:]
 assert 'Tecno Phone' not in a and 'tecnophone' not in a.lower() and OLD_URL not in a
 (ROOT / 'site/admin.html').write_text(a, encoding='utf-8')
 
@@ -132,6 +172,30 @@ i = sub(i, r"(const CFG = \{\n  url: '[^']*',\n  key: ')[^']*'", r"\g<1>" + KEY 
 i = sub(i, r'const FALLBACK = \{"items": .*?\};\n', 'const FALLBACK = {"items": {}, "v": 3};\n', count=1, flags=re.S)
 i = i.replace('Tecno Phone Ibagué', 'AMINK TECH').replace('Tecno Phone', 'AMINK TECH').replace('TECNOPHONELAB', 'AMINK TECH TECNOLOGY')
 
+# catálogo = suma de las dos sedes (public/catalog_chapinero + public/catalog_modelia); usa Supabase, no el respaldo forzado
+i = rep(i, """    const rows = await rest('?select=path,data&path=' + inList(['public/catalog']));
+    cat = rows.find(r => r.path === 'public/catalog') || null;""", """    const rows = await rest('?select=path,data&path=' + inList(['public/catalog_chapinero', 'public/catalog_modelia']));
+    const parts = rows.map(r => r.data).filter(d => d && d.items);
+    cat = parts.length ? { data: mergeCatalogs(parts) } : null;""", expect=1)
+i = rep(i, "existe la fila public/catalog. Ejecuta el SQL completo o entra una vez al admin.", "existe el catálogo de ninguna sede. Entra una vez al admin con Chapinero o Modelia.", expect=1)
+i = rep(i, "    const data = FALLBACK; /* forzar fotos de Drive */", "    const data = cat ? cat.data : FALLBACK;", expect=1)
+i = rep(i, "async function load(silent) {", """/* une los catálogos de las sedes: mismo código = un solo producto con el stock sumado */
+function mergeCatalogs(list) {
+  const items = {}; let at = '', site = null;
+  list.forEach(d => {
+    if (d.at && d.at > at) at = d.at; if (!site && d.site && d.site.biz) site = d.site;
+    Object.entries(d.items || {}).forEach(([k, p]) => {
+      const o = items[k];
+      if (!o) { items[k] = Object.assign({}, p); return; }
+      o.stock = (Number(o.stock) || 0) + (Number(p.stock) || 0);
+      o.agotado = !!(o.agotado && p.agotado); o.hidden = !!(o.hidden && p.hidden); o.sinInv = !!(o.sinInv || p.sinInv);
+      if (!o.hasImg && p.hasImg) { o.id = p.id; o.hasImg = true; }
+      if (!(o.colores || []).length && (p.colores || []).length) o.colores = p.colores;
+    });
+  });
+  return { at, site: site || {}, items };
+}
+async function load(silent) {""", expect=1)
 # textos robustos cuando aún no hay sedes o NIT cargados
 i = rep(i, "<p>${BRAND.sedes.length} puntos de atención en ${esc(BRAND.ciudad.split(',')[0])}.</p>",
         "<p>${BRAND.sedes.length ? BRAND.sedes.length + (BRAND.sedes.length === 1 ? ' punto' : ' puntos') + ' de atención' + (BRAND.ciudad ? ' en ' + esc(BRAND.ciudad.split(',')[0]) : '') + '.' : 'Celulares, accesorios y servicio técnico especializado.'}</p>", expect=1)

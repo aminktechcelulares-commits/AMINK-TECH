@@ -471,17 +471,34 @@ function whyFailed(e) {
   if (e.status) return 'Supabase respondió con error ' + e.status + ': ' + (e.body || '');
   return 'No se pudo contactar a Supabase (' + CFG.url + '): URL incorrecta, proyecto pausado o sin internet. Detalle: ' + (e.message || e);
 }
+/* une los catálogos de las sedes: mismo código = un solo producto con el stock sumado */
+function mergeCatalogs(list) {
+  const items = {}; let at = '', site = null;
+  list.forEach(d => {
+    if (d.at && d.at > at) at = d.at; if (!site && d.site && d.site.biz) site = d.site;
+    Object.entries(d.items || {}).forEach(([k, p]) => {
+      const o = items[k];
+      if (!o) { items[k] = Object.assign({}, p); return; }
+      o.stock = (Number(o.stock) || 0) + (Number(p.stock) || 0);
+      o.agotado = !!(o.agotado && p.agotado); o.hidden = !!(o.hidden && p.hidden); o.sinInv = !!(o.sinInv || p.sinInv);
+      if (!o.hasImg && p.hasImg) { o.id = p.id; o.hasImg = true; }
+      if (!(o.colores || []).length && (p.colores || []).length) o.colores = p.colores;
+    });
+  });
+  return { at, site: site || {}, items };
+}
 async function load(silent) {
   if (!silent) { ST.error = null; renderGrid(); }
   let cat = null, lg = null, err = null;
   try {
-    const rows = await rest('?select=path,data&path=' + inList(['public/catalog']));
-    cat = rows.find(r => r.path === 'public/catalog') || null;
-    if (!cat) { err = new Error('Supabase responde, pero todavía no existe la fila public/catalog. Ejecuta el SQL completo o entra una vez al admin.'); err.noRow = true; }
+    const rows = await rest('?select=path,data&path=' + inList(['public/catalog_chapinero', 'public/catalog_modelia']));
+    const parts = rows.map(r => r.data).filter(d => d && d.items);
+    cat = parts.length ? { data: mergeCatalogs(parts) } : null;
+    if (!cat) { err = new Error('Supabase responde, pero todavía no existe el catálogo de ninguna sede. Entra una vez al admin con Chapinero o Modelia.'); err.noRow = true; }
   } catch (e) { err = e; }
   if (!cat && ST.loaded && !ST.fallback) { console.warn('Catálogo:', err); return; }   /* fallo pasajero: se conservan los datos reales ya cargados */
   try {
-    const data = FALLBACK; /* forzar fotos de Drive */
+    const data = cat ? cat.data : FALLBACK;
     ST.items = normalize(data);
     ST.site = brandSite((data && data.site) || {});
     ST.at = cat ? ((data && data.at) || '') : '';
