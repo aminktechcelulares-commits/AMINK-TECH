@@ -754,9 +754,9 @@ const DEFAULTS = {
     tarifas: [{ codigo: 'EXCLUIDO', nombre: 'Excluido', pct: 0, tipo: 'IVA' }, { codigo: 'EXENTO', nombre: 'Exento', pct: 0, tipo: 'IVA' }, { codigo: 'IVA5', nombre: 'IVA 5%', pct: 5, tipo: 'IVA' }, { codigo: 'IVA19', nombre: 'IVA 19%', pct: 19, tipo: 'IVA' }, { codigo: 'INC8', nombre: 'Impoconsumo 8%', pct: 8, tipo: 'INC' }],
     cajas: [{ id: 'c0', numero: 0, nombre: 'Caja 0', activa: true }],
     users: [
-      { id: 'us_ger', nombre: 'Gerencia', perfil: 'gerencia', pin: 'g3r3nc14', creado: '2026-01-01T00:00:00.000Z' },
-      { id: 'us_com', nombre: 'Comercial', perfil: 'comercial', pin: 'c0m3rc14l', creado: '2026-01-01T00:00:00.000Z' },
-      { id: 'us_bod', nombre: 'Bodega', perfil: 'bodega', pin: 'b0d3g4', creado: '2026-01-01T00:00:00.000Z' }
+      { id: 'us_ger', nombre: 'Gerencia', perfil: 'gerencia', pin: '3sdthmiu', creado: '2026-01-01T00:00:00.000Z' },
+      { id: 'us_com', nombre: 'Comercial', perfil: 'comercial', pin: 'taavcdxv', creado: '2026-01-01T00:00:00.000Z' },
+      { id: 'us_bod', nombre: 'Bodega', perfil: 'bodega', pin: 'na4a55nk', creado: '2026-01-01T00:00:00.000Z' }
     ]
   },
   products: [], clients: [], services: [], sales: [], credits: [], expenses: [], cashdays: [], wholesale: [], campaigns: [],
@@ -5795,7 +5795,7 @@ function ytWebDesc(id) {
 (function () {
   if (ADMIN_LOGIN_MODE !== 'supabase' || !SUPA_ON) return;
   const VK = 'yt_admin_ok';
-  const GER_PIN_EXTRA = 'g3r3nc1a';                    /* PIN alternativo de Gerencia (además del guardado en Usuarios) */
+  const GER_PIN_EXTRA = '3sdthmiu';                    /* PIN alternativo de Gerencia (además del guardado en Usuarios) */
   let mail = ADMIN_EMAIL_DEF || (function () { try { return localStorage.getItem('yt_admin_mail') || ''; } catch (e) { return ''; } })();
   let busy = false, cool = 0, codeVal = null, codeExp = 0, codeTries = 0, pinTries = 0, codeSent = false;
   SESSION = null; try { localStorage.removeItem('ef_session'); } catch (e) { }

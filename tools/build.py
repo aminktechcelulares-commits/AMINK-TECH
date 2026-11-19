@@ -3,7 +3,6 @@ Uso: python build.py <anon_key> [correo_admin]"""
 import base64, re, sys, pathlib
 
 ROOT = pathlib.Path(__file__).parent  # en el repo: tools/ (salida a ../)
-# Uso desde el repo: python tools/build.py <clave> <correo> (requiere la plantilla original en SRC)
 SRC = pathlib.Path(r"C:/Users/USUARIO/Downloads")
 KEY = sys.argv[1] if len(sys.argv) > 1 else ''
 MAIL = sys.argv[2] if len(sys.argv) > 2 else ''
@@ -85,6 +84,11 @@ a = rep(a, "<div class=\"col-b\">${it.map(ticketHTML)", "<div class=\"col-b\" da
 a = rep(a, ".col-b{padding:10px;display:flex;flex-direction:column;gap:9px}",
         ".col-b{padding:10px;display:flex;flex-direction:column;gap:9px}\n.ticket[data-order-id]{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}", expect=1)
 a = sub(a, r"/\* --- 3\. Drag & drop en kanban de servicios --- \*/.*?(?=/\* --- 5\. )", lambda m: (ROOT / 'patches/servicios.js').read_text(encoding='utf-8'), count=1, flags=re.S)
+# PIN de perfiles AMINK (reemplazan los de la plantilla; el PIN alternativo de Gerencia queda igual al principal)
+a = rep(a, "pin: 'g3r3nc14'", "pin: '3sdthmiu'", expect=1)
+a = rep(a, "pin: 'c0m3rc14l'", "pin: 'taavcdxv'", expect=1)
+a = rep(a, "pin: 'b0d3g4'", "pin: 'na4a55nk'", expect=1)
+a = rep(a, "const GER_PIN_EXTRA = 'g3r3nc1a';", "const GER_PIN_EXTRA = '3sdthmiu';", expect=1)
 assert 'Tecno Phone' not in a and 'tecnophone' not in a.lower() and OLD_URL not in a
 (ROOT / 'site/admin.html').write_text(a, encoding='utf-8')
 
