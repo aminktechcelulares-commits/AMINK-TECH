@@ -64,7 +64,7 @@ a = rep(a, "categorias: ['Accesorios', 'Cargadores y cables', 'Audífonos y parl
 # catálogo inicial y datos de la tienda anterior: fuera
 a = sub(a, r'var TP_SEED = \[.*?\];\n', 'var TP_SEED = [];\n', count=1, flags=re.S)
 a = rep(a, "var TP_CATS = ['Audífonos', 'Apple Pencil', 'Cables', 'Baterías', 'Fundas'];", "var TP_CATS = ['Celulares', 'Accesorios', 'Forros y protectores', 'Cargadores y cables', 'Audífonos y parlantes', 'Relojes smart', 'Repuestos', 'Servicio técnico'];", expect=1)
-a = sub(a, r"var TP_DATA = \{[^}]*\};", "var TP_DATA = { nit: '', tel: '3207021124', wa: '3169041345', dir: 'Manzana 107 Casa 13, Local 3, Barrio Modelia', ciudad: 'Ibagué, Tolima', email: 'aminktechcelulares@gmail.com' };", expect=1)
+a = sub(a, r"var TP_DATA = \{[^}]*\};", "var TP_DATA = { nit: '', tel: '3169041345', wa: '3207021124', dir: '', ciudad: 'Ibagué, Tolima', email: 'aminktechcelulares@gmail.com' };", expect=1)
 a = rep(a, "c.prefijoSKU = 'TP';", "c.prefijoSKU = 'AT';", expect=1)
 a = rep(a, "prefijoSKU: 'EP'", "prefijoSKU: 'AT'", expect=1)
 a = rep(a, "TECNO PHONE", "AMINK TECH")
@@ -150,11 +150,14 @@ i = sub(i, r"const BRAND = \{.*?\n\};", """const BRAND = {
   nit: '',
   ciudad: 'Ibagué, Tolima',
   eslogan: 'Tu mundo en buenas manos',
-  whatsapp: '3169041345',     /* número que recibe los pedidos del catálogo */
+  whatsapp: '3207021124',     /* número principal: recibe los pedidos del catálogo */
   telefono: '',
   correo: 'aminktechcelulares@gmail.com',
-  contactos: [ { n: 'Estiwen', t: '3169041345' }, { n: 'María', t: '3207021124' } ],
-  sedes: [ { n: 'AMINK TECH', d: 'Manzana 107 Casa 13, Local 3 · Barrio Modelia', q: 'Manzana 107 Casa 13 Local 3, Barrio Modelia, Ibagué, Tolima', url: 'https://maps.app.goo.gl/21yQpTZvTjicJLGa8' } ],
+  contactos: [ { n: 'María', t: '3207021124' }, { n: 'Estiwen', t: '3169041345' } ],
+  sedes: [
+    { n: 'Sede Chapinero', d: 'C.C. Chapinero · Local 207, Módulo 6', q: 'Centro Comercial Chapinero, Ibagué, Tolima' },   /* falta el enlace exacto de Maps (url) */
+    { n: 'Sede Modelia', d: 'Manzana 107 Casa 13, Local 3 · Barrio Modelia', q: 'Manzana 107 Casa 13 Local 3, Barrio Modelia, Ibagué, Tolima', url: 'https://maps.app.goo.gl/21yQpTZvTjicJLGa8' }
+  ],
   redes: [
     { n: 'Instagram', u: 'https://www.instagram.com/celulares_aminktech' },
     { n: 'Facebook',  u: 'https://www.facebook.com/share/1FAhd5s5RG/' },

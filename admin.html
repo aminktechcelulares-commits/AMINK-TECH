@@ -5956,7 +5956,7 @@ function ytWebDesc(id) {
 /* [código, nombre, categoría, tipo, [ids de fotos en Drive]] — fotos de la carpeta compartida de AMINK TECH */
 var TP_SEED = [];
 var TP_CATS = ['Celulares', 'Accesorios', 'Forros y protectores', 'Cargadores y cables', 'Audífonos y parlantes', 'Relojes smart', 'Repuestos', 'Servicio técnico'];
-var TP_DATA = { nit: '', tel: '3207021124', wa: '3169041345', dir: 'Manzana 107 Casa 13, Local 3, Barrio Modelia', ciudad: 'Ibagué, Tolima', email: 'aminktechcelulares@gmail.com' };
+var TP_DATA = { nit: '', tel: '3169041345', wa: '3207021124', dir: '', ciudad: 'Ibagué, Tolima', email: 'aminktechcelulares@gmail.com' };
 function ytSeedTP() {
   const c = S.config; if (!c || c.tpSeed) return false;
   let n = 0;
@@ -6555,6 +6555,7 @@ var AMK_USERS = [
   { id: 'us_cha', nombre: 'Chapinero', perfil: 'sede', sede: 'chapinero', desc: 'Inventario, caja y facturas de Chapinero · pide PIN' },
   { id: 'us_mod', nombre: 'Modelia', perfil: 'sede', sede: 'modelia', desc: 'Inventario, caja y facturas de Modelia · pide PIN' }
 ];
+var AMK_DIR = { chapinero: 'C.C. Chapinero, Local 207, Módulo 6', modelia: 'Manzana 107 Casa 13, Local 3, Barrio Modelia' };
 var AMK_NOMBRE = { chapinero: 'Chapinero', modelia: 'Modelia', todas: 'Consolidado (ambas sedes)' };
 
 /* perfil "sede": opera su sede completa, sin costos, configuración ni anulaciones (eso queda en Gerencia) */
@@ -6570,6 +6571,7 @@ function amkPrepSede() {
     if (!c.res.pos.actual) c.res.pos.prefijo = pre;
     if (!c.res.cont.actual) c.res.cont.prefijo = 'CT' + pre;
     (c.cajas || []).forEach((k, i) => { if (/^Caja \d+$/.test(k.nombre || '')) k.nombre = 'Caja ' + SEDES[SEDE] + (i ? ' ' + (i + 1) : ''); });
+    if (!c.dir) c.dir = AMK_DIR[SEDE];
     c.amkSede = SEDE; save('config');
   }
 }
