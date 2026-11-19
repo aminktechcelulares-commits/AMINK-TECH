@@ -24,5 +24,5 @@ create policy catalogo_publico_lectura on public.ep_store
 -- Solo el/los correos del administrador pueden leer y escribir todo
 create policy admin_autenticado on public.ep_store
   for all to authenticated
-  using ((auth.jwt() ->> 'email') in ('__ADMIN_EMAIL__'))
-  with check ((auth.jwt() ->> 'email') in ('__ADMIN_EMAIL__'));
+  using ((auth.jwt() ->> 'email') in ('aminktechcelulares@gmail.com'))
+  with check ((auth.jwt() ->> 'email') in ('aminktechcelulares@gmail.com'));
