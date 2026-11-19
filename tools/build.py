@@ -2,7 +2,7 @@
 Uso: python build.py <anon_key> [correo_admin]"""
 import base64, re, sys, pathlib
 
-ROOT = pathlib.Path(__file__).parent  # en el repo: tools/ (salida a ../)
+ROOT = pathlib.Path(__file__).parent
 SRC = pathlib.Path(r"C:/Users/USUARIO/Downloads")
 KEY = sys.argv[1] if len(sys.argv) > 1 else ''
 MAIL = sys.argv[2] if len(sys.argv) > 2 else ''
@@ -64,7 +64,7 @@ a = rep(a, "categorias: ['Accesorios', 'Cargadores y cables', 'Audífonos y parl
 # catálogo inicial y datos de la tienda anterior: fuera
 a = sub(a, r'var TP_SEED = \[.*?\];\n', 'var TP_SEED = [];\n', count=1, flags=re.S)
 a = rep(a, "var TP_CATS = ['Audífonos', 'Apple Pencil', 'Cables', 'Baterías', 'Fundas'];", "var TP_CATS = ['Celulares', 'Accesorios', 'Forros y protectores', 'Cargadores y cables', 'Audífonos y parlantes', 'Relojes smart', 'Repuestos', 'Servicio técnico'];", expect=1)
-a = sub(a, r"var TP_DATA = \{[^}]*\};", "var TP_DATA = { nit: '', tel: '', wa: '', dir: '', ciudad: '' };", expect=1)
+a = sub(a, r"var TP_DATA = \{[^}]*\};", "var TP_DATA = { nit: '', tel: '3207021124', wa: '3169041345', dir: 'Manzana 107 Casa 13, Local 3, Barrio Modelia', ciudad: 'Ibagué, Tolima', email: 'aminktechcelulares@gmail.com' };", expect=1)
 a = rep(a, "c.prefijoSKU = 'TP';", "c.prefijoSKU = 'AT';", expect=1)
 a = rep(a, "prefijoSKU: 'EP'", "prefijoSKU: 'AT'", expect=1)
 a = rep(a, "TECNO PHONE", "AMINK TECH")
@@ -107,13 +107,26 @@ i = sub(i, r"const BRAND = \{.*?\n\};", """const BRAND = {
   nombre: 'AMINK TECH',
   razon: 'AMINK TECH TECNOLOGY',
   nit: '',
-  ciudad: '',
+  ciudad: 'Ibagué, Tolima',
   eslogan: 'Tu mundo en buenas manos',
-  whatsapp: '',     /* número que recibe los pedidos (vacío = se toma de Configuración del admin) */
+  whatsapp: '3169041345',     /* número que recibe los pedidos del catálogo */
   telefono: '',
-  correo: '',
-  sedes: []         /* { n: 'Nombre', d: 'Local / piso', q: 'Dirección para Google Maps' } */
+  correo: 'aminktechcelulares@gmail.com',
+  contactos: [ { n: 'Estiwen', t: '3169041345' }, { n: 'María', t: '3207021124' } ],
+  sedes: [ { n: 'AMINK TECH', d: 'Manzana 107 Casa 13, Local 3 · Barrio Modelia', q: 'Manzana 107 Casa 13 Local 3, Barrio Modelia, Ibagué, Tolima', url: 'https://maps.app.goo.gl/21yQpTZvTjicJLGa8' } ],
+  redes: [
+    { n: 'Instagram', u: 'https://www.instagram.com/celulares_aminktech' },
+    { n: 'Facebook',  u: 'https://www.facebook.com/share/1FAhd5s5RG/' },
+    { n: 'TikTok',    u: 'https://www.tiktok.com/@celulares.amink' }
+  ]
 };""", count=1, flags=re.S)
+# contacto: WhatsApp por persona, redes sociales y enlace exacto de Maps
+i = rep(i, "sedeMap = x => 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(x.q);",
+        "sedeMap = x => x.url || 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(x.q);", expect=1)
+i = rep(i, "function waCardHTML() {", (ROOT / 'patches/contacto.js').read_text(encoding='utf-8') + "function waCardHTML() {", expect=1)
+i = rep(i, "Llamar al ${esc(prettyPhone(ST.site.tel))}</a>` : ''}</div>`;", "Llamar al ${esc(prettyPhone(ST.site.tel))}</a>` : ''}${contactosHTML()}${redesHTML()}</div>`;", expect=1)
+i = rep(i, "<div><b>Contacto</b>${waNumber() ?", "<div><b>Contacto</b>${footContactoHTML()}${(BRAND.contactos || []).length ? '' : waNumber() ?", expect=1)
+i = rep(i, "\n.wa-call{", "\n.redes{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}.redes a{display:inline-flex;align-items:center;gap:7px;height:36px;padding:0 13px;border-radius:9999px;color:#fff;text-decoration:none;font-size:13.5px;font-weight:500;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.22)}.redes svg,.wa-call svg{width:17px;height:17px;flex:none}\n.wa-call{", expect=1)
 i = rep(i, OLD_URL, URL, expect=1)
 i = sub(i, r"(const CFG = \{\n  url: '[^']*',\n  key: ')[^']*'", r"\g<1>" + KEY + "'", expect=1)
 i = sub(i, r'const FALLBACK = \{"items": .*?\};\n', 'const FALLBACK = {"items": {}, "v": 3};\n', count=1, flags=re.S)
