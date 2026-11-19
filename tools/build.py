@@ -127,6 +127,7 @@ a = rep(a, "    enter(u);\n  }\n  function enter(us) {", """    if (u.perfil ===
   function enter(us) {""", expect=1)
 a = rep(a, "window.ytV11 = { signin, verify, resend: () => sendCode(true), pick, pin, forget, profiles: drawProfiles };",
         "window.ytV11 = { signin, verify, resend: () => sendCode(true), pick, pin, forget, profiles: drawProfiles, sede: s => goSede(AMK_USERS[0], s) };", expect=1)
+a = sub(a, r'<script src="assets/js/[^"]*"></script>\n?', '', expect=8)   # scripts de la plantilla que no existen (404)
 _end = a.rfind('</script>')
 a = a[:_end] + (ROOT / 'patches/sedes.js').read_text(encoding='utf-8') + a[_end:]
 assert 'Tecno Phone' not in a and 'tecnophone' not in a.lower() and OLD_URL not in a
