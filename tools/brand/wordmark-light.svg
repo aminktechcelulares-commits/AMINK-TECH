@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1240 420" width="1240" height="420">
+  <defs>
+    <linearGradient id="d" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#F8FAFC"/><stop offset=".55" stop-color="#CBD5E1"/><stop offset="1" stop-color="#94A3B8"/></linearGradient>
+    <linearGradient id="b" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#1E3A8A"/><stop offset=".45" stop-color="#2563EB"/><stop offset="1" stop-color="#60A5FA"/></linearGradient>
+    <linearGradient id="t" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#3B82F6"/><stop offset="1" stop-color="#1D4ED8"/></linearGradient>
+  </defs>
+  <g transform="translate(10 10) scale(2)">
+    <path d="M84 12h34l72 176h-38L101 58 50 188H12z" fill="url(#d)"/>
+    <path d="M101 58l-6 15 55 115h2z" fill="#C0C8D0" opacity=".55"/>
+    <path d="M6 150C50 112 120 96 186 104l-8-14 20 22-26 14 7-12C130 108 70 118 22 160z" fill="url(#b)"/>
+  </g>
+  <text x="420" y="225" font-family="Segoe UI, Arial, sans-serif" font-weight="900" font-size="140" textLength="790" lengthAdjust="spacingAndGlyphs" fill="#FFFFFF">AMINK<tspan fill="url(#t)">TECH</tspan></text>
+  <rect x="430" y="282" width="110" height="10" rx="5" fill="#2563EB"/>
+  <text x="820" y="310" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-weight="600" font-size="62" letter-spacing="22" fill="#E5E7EB">TECNOLOGY</text>
+  <rect x="1100" y="282" width="110" height="10" rx="5" fill="#2563EB"/>
+  <text x="820" y="382" text-anchor="middle" font-family="Segoe Script, Segoe UI, sans-serif" font-style="italic" font-weight="700" font-size="44" fill="#93C5FD">Tu mundo en buenas manos</text>
+</svg>
