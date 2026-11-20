@@ -4,7 +4,7 @@
    Gerencia puede entrar a una sede (opera con todos los permisos) o a la vista Consolidada (suma ambas; solo lectura). */
 var AMK_PIN = '3sdthmiu';   /* shortcut: PIN único fijo en el código (pedido del cliente); para PIN por perfil, leerlo de S.config.users */
 var AMK_USERS = [
-  { id: 'us_ger', nombre: 'Gerencia', perfil: 'gerencia', desc: 'Resume y maneja ambas sedes · pide PIN' },
+  { id: 'us_ger', nombre: 'Consolidado', perfil: 'gerencia', sede: 'todas', desc: 'Ambas sedes sumadas: ventas, caja, inventario, reportes y estados financieros · pide PIN' },
   { id: 'us_cha', nombre: 'Chapinero', perfil: 'sede', sede: 'chapinero', desc: 'Inventario, caja y facturas de Chapinero · pide PIN' },
   { id: 'us_mod', nombre: 'Modelia', perfil: 'sede', sede: 'modelia', desc: 'Inventario, caja y facturas de Modelia · pide PIN' }
 ];
@@ -12,12 +12,12 @@ var AMK_DIR = { chapinero: 'C.C. Chapinero, Local 207, Módulo 6', modelia: 'Man
 var AMK_NOMBRE = { chapinero: 'Chapinero', modelia: 'Modelia', todas: 'Consolidado (ambas sedes)' };
 
 /* perfil "sede": opera su sede completa, sin costos, configuración ni anulaciones (eso queda en Gerencia) */
-PERFILES.sede = '🏬 Sede';
+PERFILES.sede = '🏬 Sede'; PERFILES.gerencia = '📊 Consolidado'; delete PERFILES.comercial; delete PERFILES.bodega;
 MENU_PERFIL.sede = MENU_DEF.map(m => m.id).filter(id => !['config', 'finanzas', 'campanas', 'comisiones'].includes(id));
 Object.keys(PERM).forEach(k => { if (PERM[k].includes('comercial') || PERM[k].includes('bodega') || k === 'editar_inventario') PERM[k].push('sede'); });
 
 function amkPrepSede() {
-  const c = S.config; c.users = (c.users || []).filter(u => !['us_com', 'us_bod'].includes(u.id));
+  const c = S.config; c.users = (c.users || []).filter(u => AMK_USERS.some(a => a.id === u.id));   /* solo Consolidado, Chapinero y Modelia */
   AMK_USERS.forEach(u => { const x = c.users.find(y => y.id === u.id); if (x) Object.assign(x, { nombre: u.nombre, perfil: u.perfil, sede: u.sede, pin: AMK_PIN }); else c.users.push({ id: u.id, nombre: u.nombre, perfil: u.perfil, sede: u.sede, pin: AMK_PIN, creado: nowISO() }); });
   if (SEDES[SEDE] && c.amkSede !== SEDE) {   /* primera vez en la sede: numeración y caja propias */
     const pre = SEDE === 'chapinero' ? 'CH' : 'MO';

@@ -85,7 +85,7 @@ a = rep(a, ".col-b{padding:10px;display:flex;flex-direction:column;gap:9px}",
         ".col-b{padding:10px;display:flex;flex-direction:column;gap:9px}\n.ticket[data-order-id]{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}", expect=1)
 a = sub(a, r"/\* --- 3\. Drag & drop en kanban de servicios --- \*/.*?(?=/\* --- 5\. )", lambda m: (ROOT / 'patches/servicios.js').read_text(encoding='utf-8'), count=1, flags=re.S)
 # Perfiles AMINK: Gerencia + sedes Chapinero y Modelia, todos con el mismo PIN
-a = rep(a, "{ id: 'us_ger', nombre: 'Gerencia', perfil: 'gerencia', pin: 'g3r3nc14'", "{ id: 'us_ger', nombre: 'Gerencia', perfil: 'gerencia', pin: '3sdthmiu'", expect=1)
+a = rep(a, "{ id: 'us_ger', nombre: 'Gerencia', perfil: 'gerencia', pin: 'g3r3nc14'", "{ id: 'us_ger', nombre: 'Consolidado', perfil: 'gerencia', sede: 'todas', pin: '3sdthmiu'", expect=1)
 a = rep(a, "{ id: 'us_com', nombre: 'Comercial', perfil: 'comercial', pin: 'c0m3rc14l'", "{ id: 'us_cha', nombre: 'Chapinero', perfil: 'sede', sede: 'chapinero', pin: '3sdthmiu'", expect=1)
 a = rep(a, "{ id: 'us_bod', nombre: 'Bodega', perfil: 'bodega', pin: 'b0d3g4'", "{ id: 'us_mod', nombre: 'Modelia', perfil: 'sede', sede: 'modelia', pin: '3sdthmiu'", expect=1)
 a = rep(a, "const GER_PIN_EXTRA = 'g3r3nc1a';", "const GER_PIN_EXTRA = '3sdthmiu';", expect=1)
@@ -111,13 +111,7 @@ a = rep(a, "try { await supaStart(); } catch (e) { }\n    pinTries = 0; drawProf
 a = rep(a, "${esc(PDESC[u.perfil] || '')}${u.perfil === 'gerencia' ? ' · pide PIN' : ''}", "${esc(u.desc || '')}", expect=1)
 a = rep(a, "    if (u.perfil !== 'gerencia') return enter(u);\n", "", expect=1)
 a = rep(a, "if (c !== String(u.pin || '') && c !== GER_PIN_EXTRA) {", "if (c !== AMK_PIN) {", expect=1)
-a = rep(a, "    enter(u);\n  }\n  function enter(us) {", """    if (u.perfil === 'gerencia') return drawSedes();
-    goSede(u, u.sede);
-  }
-  function drawSedes() {
-    v10Shell(`<div id="v11Box"><div style="font-weight:700;font-size:1.05rem;margin:2px 0 12px">👑 Gerencia · ¿qué quieres ver?</div>
-      <div class="opt-grid" style="grid-template-columns:1fr;gap:10px">${['todas', 'chapinero', 'modelia'].map(s => `<button class="opt" type="button" style="display:flex;align-items:center;gap:14px;padding:16px" onclick="ytV11.sede('${s}')"><span class="em" style="font-size:28px;margin:0">${s === 'todas' ? '📊' : '🏬'}</span><span><b style="font-size:1.05rem">${AMK_NOMBRE[s]}</b><span class="d" style="font-size:12.5px;display:block">${s === 'todas' ? 'Suma de ambas sedes: ventas, caja, inventario, reportes y estados financieros' : 'Operar la sede con permisos de Gerencia'}</span></span></button>`).join('')}</div>
-      <div id="v11Msg" class="tiny" style="margin-top:10px;min-height:1em"></div></div>`);
+a = rep(a, "    enter(u);\n  }\n  function enter(us) {", """    goSede(u, u.sede);
   }
   async function goSede(u, sede) {
     v10Shell(`<div id="v11Box"><div class="alertbox g"><span class="em">☁️</span><div>Cargando ${esc(AMK_NOMBRE[sede] || sede)}…</div></div></div>`);
@@ -125,8 +119,8 @@ a = rep(a, "    enter(u);\n  }\n  function enter(us) {", """    if (u.perfil ===
     enter(u);
   }
   function enter(us) {""", expect=1)
-a = rep(a, "window.ytV11 = { signin, verify, resend: () => sendCode(true), pick, pin, forget, profiles: drawProfiles };",
-        "window.ytV11 = { signin, verify, resend: () => sendCode(true), pick, pin, forget, profiles: drawProfiles, sede: s => goSede(AMK_USERS[0], s) };", expect=1)
+# rebote: initStore programaba loginScreen y lo disparaba aunque ya se hubiera entrado; ahora se revisa al dispararse
+a = rep(a, "if(!SESSION||!curUser())setTimeout(loginScreen,300); }", "setTimeout(() => { if (!SESSION || !curUser()) loginScreen(); }, 300); }", expect=1)
 a = sub(a, r'<script src="assets/js/[^"]*"></script>\n?', '', expect=8)   # scripts de la plantilla que no existen (404)
 _end = a.rfind('</script>')
 a = a[:_end] + (ROOT / 'patches/sedes.js').read_text(encoding='utf-8') + a[_end:]
